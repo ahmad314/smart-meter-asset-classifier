@@ -1,34 +1,39 @@
-# smart-meter-asset-classifier
+# Smart Meter Asset Classifier
 
-A machine learning pipeline to identify residential energy assets: **Solar Photovoltaic (PV)**, **Heat Pumps (HP)**, and **Electric Vehicles (EV)**—directly from 15-minute resolution smart meter consumption and injection data.
+This repository contains a machine learning pipeline designed to identify residential distributed energy resources (DERs)—specifically Solar Photovoltaic (PV), Heat Pumps (HP), and Electric Vehicles (EV)—using standard 15-minute resolution smart meter data.
 
 ---
 
-## Overview
+## Background
 
-Grid operators and utilities often lack granular visibility into distributed energy resource (DER) adoption behind the meter. This project extracts domain-informed behavioral signatures from raw time-series data to classify households into five distinct asset categories without requiring sub-metering hardware:
-- **Baseline** (Standard household load)
-- **EV_Only** (Electric Vehicle charging)
-- **PV_Only** (Solar generation & injection)
-- **EV_PV** (Electric Vehicle + Solar generation)
-- **HP_PV** (Heat Pump heating/cooling + Solar generation)
+Grid operators and utilities frequently lack granular visibility into behind-the-meter asset adoption. Relying on physical sub-metering hardware to track these assets is expensive and difficult to scale. 
+
+This project bypasses the need for sub-meters by extracting domain-specific behavioral signatures directly from raw time-series consumption and injection data. The pipeline uses these features to classify households into one of five distinct operational profiles:
+
+*   **Baseline:** Standard household load without major DERs.
+*   **EV_Only:** Electric Vehicle charging detected.
+*   **PV_Only:** Solar generation and grid injection detected.
+*   **EV_PV:** Both EV charging and Solar generation present.
+*   **HP_PV:** Heat Pump operation and Solar generation present.
 
 ---
 
 ## Performance Summary
 
-Models were evaluated using Stratified Validation and Test splits to preserve class distributions across minority adoption groups.
+To ensure reliable evaluation, all models were trained and tested using stratified splits, preserving the real-world distribution of minority adoption groups across the dataset.
 
-| Model | Macro-F1 | Accuracy | Key Strengths |
+| Model | Macro-F1 | Accuracy | Key Takeaways |
 | :--- | :--- | :--- | :--- |
-| **LightGBM** | **0.855** | **86.9%** | Best overall performance; strong non-linear pattern capture on hybrid asset classes (`EV_PV` F1: 0.94). |
-| **Logistic Regression (Balanced)** | **0.807** | **80.0%** | Highly interpretable baseline; robust identification of `Baseline` (0.95 F1) and `EV_PV` (0.86 F1). |
+| **LightGBM** | **0.855** | **86.9%** | Best overall performance. Excels at capturing non-linear patterns on hybrid asset classes (e.g., `EV_PV` F1: 0.94). |
+| **Logistic Regression (Balanced)** | 0.807 | 80.0% | Highly interpretable baseline model. Shows robust identification for `Baseline` (0.95 F1) and `EV_PV` (0.86 F1). |
 
 ### Detailed Classification Metrics
 
-#### LightGBM (Validation Set)
+Below is the classification report for the primary LightGBM model evaluated on the validation set:
+
 ```text
               precision    recall  f1-score   support
+
     Baseline       0.91      0.97      0.94        30
      EV_Only       0.88      0.70      0.78        10
        EV_PV       0.91      0.97      0.94        30
